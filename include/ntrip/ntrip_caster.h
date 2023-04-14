@@ -10,7 +10,7 @@
 #include <thread>  // NOLINT.
 
 #include "mount_point.h"
-#include "../thread_raii.h"
+#include "thread_raii.h"
 
 
 namespace libntrip {
