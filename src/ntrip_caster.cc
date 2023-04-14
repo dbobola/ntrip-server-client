@@ -22,7 +22,7 @@
 #include <memory>
 
 #include "ntrip/ntrip_util.h"
-#include "cmake_definition.h"
+#include "cmake_definition.h.in"
 
 
 namespace libntrip {
