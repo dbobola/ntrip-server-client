@@ -1,0 +1,15 @@
+#ifndef NTRIP_CMAKE_DEFINITION_H_
+#define NTRIP_CMAKE_DEFINITION_H_
+
+
+// #include <string>
+
+namespace libntrip {
+
+constexpr char kCasterAgent[] = "NTRIP NTRIPCaster/@NTRIP_VERSION_MAJOR@.@NTRIP_VERSION_MINOR@.@NTRIP_VERSION_PATCH@.@GIT_HASH@";
+constexpr char kClientAgent[] = "NTRIP NTRIPClient/@NTRIP_VERSION_MAJOR@.@NTRIP_VERSION_MINOR@.@NTRIP_VERSION_PATCH@.@GIT_HASH@";
+constexpr char kServerAgent[] = "NTRIP NTRIPServer/@NTRIP_VERSION_MAJOR@.@NTRIP_VERSION_MINOR@.@NTRIP_VERSION_PATCH@.@GIT_HASH@";
+
+}  // namespace libntrip
+
+#endif  // NTRIP_CMAKE_DEFINITION_H_
