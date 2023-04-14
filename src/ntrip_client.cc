@@ -146,10 +146,10 @@ bool NtripClient::Run(void) {
           ofs.close();
           
           // Run RTKLIB's RTKCONV to convert the RTCM data to RINEX format
-          std::system("rtkconv.exe -o rinex_output.obs rtcm_input.dat");
+          std::system("/home/ubuntu/RTKLIB/bin/rtkconv -o rinex_output.obs rtcm_input.dat");
           
           // Run RTKLIB's RTKPOST to process the RINEX data and output the solution
-          std::system("rtkpost.exe -o solution.pos -s rinex_output.obs");
+          std::system("/home/ubuntu/RTKLIB/bin/rtkpost -o solution.pos -s rinex_output.obs");
           
           // Read in the solution data and store it in the solution_data variable
           std::ifstream ifs("solution.pos", std::ios::in);
@@ -275,10 +275,10 @@ void NtripClient::ThreadHandler(void) {
         ofs.close();
         
         // Run RTKLIB's RTKCONV to convert the RTCM data to RINEX format
-        std::system("rtkconv.exe -o rinex_output.obs rtcm_input.dat");
+        std::system("/home/ubuntu/RTKLIB/bin/rtkconv -o rinex_output.obs rtcm_input.dat");
         
         // Run RTKLIB's RTKPOST to process the RINEX data and output the solution
-        std::system("rtkpost.exe -o solution.pos -s rinex_output.obs");
+        std::system("/home/ubuntu/RTKLIB/bin/rtkpost -o solution.pos -s rinex_output.obs");
         
         // Read in the solution data and store it in the solution_data variable
         std::ifstream ifs("solution.pos", std::ios::in);
