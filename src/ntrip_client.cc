@@ -128,6 +128,7 @@ bool NtripClient::Run(void) {
   }
   // Waitting for request to connect caster success.
   int timeout = 30;  // 30*100ms=3s.
+  std::string solution_data;
   while (timeout--) {
     ret = recv(socket_fd, buffer.get(), kBufferSize, 0);
     if (ret > 0) {
@@ -136,8 +137,24 @@ bool NtripClient::Run(void) {
           (result.find("ICY 200 OK") != std::string::npos)) {
         if (gga_buffer_.empty()) {
           GGAFrameGenerate(latitude_, longitude_, 10.0, &gga_buffer_);
+          // Write the RTCM data to a temporary file
+          std::ofstream ofs("rtcm_input.dat", std::ios::binary);
+          ofs.write(gga_buffer_.c_str(), gga_buffer_.length());
+          ofs.close();
+          
+          // Run RTKLIB's RTKCONV to convert the RTCM data to RINEX format
+          std::system("rtkconv -o rinex_output.obs rtcm_input.dat");
+          
+          // Run RTKLIB's RTKPOST to process the RINEX data and output the solution
+          std::system("rtkpost -o solution.pos -s rinex_output.obs");
+          
+          // Read in the solution data and store it in the solution_data variable
+          std::ifstream ifs("solution.pos", std::ios::in);
+          solution_data = std::string((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
+          ifs.close();
         }
-        ret = send(socket_fd, gga_buffer_.c_str(), gga_buffer_.size(), 0);
+        ret = send(socket_fd, solution_data.c_str(), solution_data.size(), 0);
+        // ret = send(socket_fd, gga_buffer_.c_str(), gga_buffer_.size(), 0);
         if (ret < 0) {
           printf("Send gpgga data fail\r\n");
 #if defined(WIN32) || defined(_WIN32)
@@ -246,10 +263,27 @@ void NtripClient::ThreadHandler(void) {
         tp_end-tp_beg).count() >= intv_ms) {
       if (receive_timeout_cnt-- <= 0) break;
       tp_beg = std::chrono::steady_clock::now();
+      std::string solution_data;
       if (!gga_is_update_.load()) {
         GGAFrameGenerate(latitude_, longitude_, 10.0, &gga_buffer_);
+        // Write the RTCM data to a temporary file
+        std::ofstream ofs("rtcm_input.dat", std::ios::binary);
+        ofs.write(gga_buffer_.c_str(), gga_buffer_.length());
+        ofs.close();
+        
+        // Run RTKLIB's RTKCONV to convert the RTCM data to RINEX format
+        std::system("rtkconv -o rinex_output.obs rtcm_input.dat");
+        
+        // Run RTKLIB's RTKPOST to process the RINEX data and output the solution
+        std::system("rtkpost -o solution.pos -s rinex_output.obs");
+        
+        // Read in the solution data and store it in the solution_data variable
+        std::ifstream ifs("solution.pos", std::ios::in);
+        solution_data = std::string((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
+        ifs.close();
       }
-      send(socket_fd_, gga_buffer_.c_str(), gga_buffer_.size(), 0);
+      // send(socket_fd_, gga_buffer_.c_str(), gga_buffer_.size(), 0);
+      send(socket_fd_, solution_data.c_str(), solution_data.size(), 0);
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
