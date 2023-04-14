@@ -19,6 +19,9 @@
 #include <list>
 #include <memory>
 
+#include <fstream> 
+#include <iterator>
+
 #include "ntrip/ntrip_util.h"
 #include "ntrip/ntrip_util.h"
 #include "cmake_definition.h.in"
