@@ -19,7 +19,7 @@
 #include <list>
 
 #include "ntrip/ntrip_util.h"
-#include "cmake_definition.h"
+#include "cmake_definition.h.in"
 
 
 #if defined(__linux__)
