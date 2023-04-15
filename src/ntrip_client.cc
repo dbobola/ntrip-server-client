@@ -27,10 +27,10 @@
 #include "cmake_definition.h.in"
 #include <iostream>
 #include <string>
-#include <linux/serial.h>
+#include <libserial/SerialPort.h>
 
 using namespace std;
-using namespace serial;
+using namespace LibSerial;
 
 
 
@@ -163,10 +163,17 @@ bool NtripClient::Run(void) {
           solution_data = std::string((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
           ifs.close();
         }
-                // UART configuration - Send RTCM Message to UART2 of Ublox-F9P module
+        // UART configuration - Send RTCM Message to UART2 of Ublox-F9P module
         bool uart_isopened = false;
         try {
-            serial::Serial uart2_f9p(uart_port_, uart_baud_, serial::Timeout::simpleTimeout(0));
+            SerialPort serial_port(uart_port_)
+            serial_port.SetBaudRate(uart_baud_);
+
+            // Read one character from the serial port within the timeout allowed.
+            int timeout_ms = 25; // timeout value in milliseconds
+            char next_char;      // variable to store the read result
+
+            serial_port.ReadByte( next_char, timeout_ms );
             uart_isopened = true;
         }
         catch (serial::IOException& e) {
@@ -177,7 +184,7 @@ bool NtripClient::Run(void) {
         if (uart_isopened) {
             // Send to UART2 of Ublox-F9P
             try {
-                uart2_f9p.write(solution_data);
+                serial_port.Write(solution_data.c_str());
                 std::cerr << "Data sent to Arduino" << std::endl;
 
             }
