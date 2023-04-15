@@ -24,22 +24,29 @@ class NtripClient {
   NtripClient(NtripClient&&) = delete;
   NtripClient& operator=(NtripClient const&) = delete;
   NtripClient& operator=(NtripClient&&) = delete;
+
   NtripClient(std::string const& ip, int port,
       std::string const& user, std::string const& passwd,
-      std::string const& mountpoint) :
+      std::string const& mountpoint, std::string const& uart_port, int uart_baud) :
         server_ip_(ip), server_port_(port),
         user_(user), passwd_(passwd),
-        mountpoint_(mountpoint) { }
+        mountpoint_(mountpoint),
+        uart_port_(uart_port),
+        uart_baud_(uart_baud) { }
   ~NtripClient() { Stop(); }
+
 
   void Init(std::string const& ip, int port,
       std::string const& user, std::string const& passwd,
-      std::string const& mountpoint) {
+      std::string const& mountpoint, std::string const& uart_port, int uart_baud) {
     server_ip_ = ip;
     server_port_ = port;
     user_ = user;
     passwd_ = passwd;
     mountpoint_ = mountpoint;
+    uart_port_ = uart_port;
+    uart_baud_ = uart_baud;
+
   }
   // Update the sent GGA statement.
 // According to the requirements of the NTRIP account, if the distance from the server location is too far, the server will not return differential data.
@@ -80,6 +87,8 @@ class NtripClient {
   std::string passwd_;
   std::string mountpoint_;
   std::string gga_buffer_;
+  std::string uart_port;
+  int uart_baud;
 #if defined(WIN32) || defined(_WIN32)
   SOCKET socket_fd_ = INVALID_SOCKET;
 #else

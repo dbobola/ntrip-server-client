@@ -25,6 +25,13 @@
 #include "ntrip/ntrip_util.h"
 #include "ntrip/ntrip_util.h"
 #include "cmake_definition.h.in"
+#include <iostream>
+#include <string>
+#include <serial/serial.h>
+
+using namespace std;
+using namespace serial;
+
 
 
 #if defined(__linux__)
@@ -146,16 +153,44 @@ bool NtripClient::Run(void) {
           ofs.close();
           
           // Run RTKLIB's RTKCONV to convert the RTCM data to RINEX format
-          std::system("/home/ubuntu/RTKLIB/bin/rtkconv -o rinex_output.obs rtcm_input.dat");
+          std::system("rtkconv -o rinex_output.obs rtcm_input.dat");
           
           // Run RTKLIB's RTKPOST to process the RINEX data and output the solution
-          std::system("/home/ubuntu/RTKLIB/bin/rtkpost -o solution.pos -s rinex_output.obs");
+          std::system("rtkpost -o solution.pos -s rinex_output.obs");
           
           // Read in the solution data and store it in the solution_data variable
           std::ifstream ifs("solution.pos", std::ios::in);
           solution_data = std::string((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
           ifs.close();
         }
+                // UART configuration - Send RTCM Message to UART2 of Ublox-F9P module
+        bool uart_isopened = false;
+        try {
+            serial::Serial uart2_f9p(uart_port_, uart_baud_, serial::Timeout::simpleTimeout(0));
+            uart_isopened = true;
+        }
+        catch (serial::IOException& e) {
+            // Log error message
+            std::cerr << "Open " << uart_port_ << " failed! Please make sure you entered right port and baudrate!" << std::endl;
+        }
+
+        if (uart_isopened) {
+            // Send to UART2 of Ublox-F9P
+            try {
+                uart2_f9p.write(solution_data);
+                std::cerr << "Data sent to Arduino" << std::endl;
+
+            }
+            catch (serial::IOException& e) {
+                std::cerr << "Did not send!" << std::endl;
+            }
+        }
+        else if (!uart_isopened) {
+            // Log warning message
+            std::cerr << "Uart not opened! RTCM data won't be sent!" << std::endl;
+        }
+
+
         ret = send(socket_fd, solution_data.c_str(), solution_data.size(), 0);
         // ret = send(socket_fd, gga_buffer_.c_str(), gga_buffer_.size(), 0);
         if (ret < 0) {
@@ -275,16 +310,44 @@ void NtripClient::ThreadHandler(void) {
         ofs.close();
         
         // Run RTKLIB's RTKCONV to convert the RTCM data to RINEX format
-        std::system("/home/ubuntu/RTKLIB/bin/rtkconv -o rinex_output.obs rtcm_input.dat");
+        std::system("rtkconv -o rinex_output.obs rtcm_input.dat");
         
         // Run RTKLIB's RTKPOST to process the RINEX data and output the solution
-        std::system("/home/ubuntu/RTKLIB/bin/rtkpost -o solution.pos -s rinex_output.obs");
+        std::system("rtkpost -o solution.pos -s rinex_output.obs");
         
         // Read in the solution data and store it in the solution_data variable
         std::ifstream ifs("solution.pos", std::ios::in);
         solution_data = std::string((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
         ifs.close();
       }
+
+        // UART configuration - Send RTCM Message to UART2 of Ublox-F9P module
+        bool uart_isopened = false;
+        try {
+            serial::Serial uart2_f9p(uart_port_, uart_baud_, serial::Timeout::simpleTimeout(0));
+            uart_isopened = true;
+        }
+        catch (serial::IOException& e) {
+            // Log error message
+            std::cerr << "Open " << uart_port_ << " failed! Please make sure you entered right port and baudrate!" << std::endl;
+        }
+
+        if (uart_isopened) {
+            // Send to UART2 of Ublox-F9P
+            try {
+                uart2_f9p.write(solution_data);
+                std::cerr << "Data sent to Arduino" << std::endl;
+
+            }
+            catch (serial::IOException& e) {
+                std::cerr << "Did not send!" << std::endl;
+            }
+        }
+        else if (!uart_isopened) {
+            // Log warning message
+            std::cerr << "Uart not opened! RTCM data won't be sent!" << std::endl;
+        }
+
       // send(socket_fd_, gga_buffer_.c_str(), gga_buffer_.size(), 0);
       send(socket_fd_, solution_data.c_str(), solution_data.size(), 0);
     }

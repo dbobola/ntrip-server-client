@@ -15,9 +15,11 @@ int main(void) {
   std::string user = "test01";
   std::string passwd = "123456";
   std::string mountpoint = "RTCM32";
+  std::string uart_port = "/dev/ttyUSB0";
+  int uart_baud = 460800;
 
   NtripClient ntrip_client;
-  ntrip_client.Init(ip, port, user, passwd, mountpoint);
+  ntrip_client.Init(ip, port, user, passwd, mountpoint, uart_port, uart_baud);
   ntrip_client.OnReceived([] (const char *buffer, int size) {
     printf("Recv[%d]: ", size);
     for (int i = 0; i < size; ++i) {
