@@ -87,8 +87,8 @@ class NtripClient {
   std::string passwd_;
   std::string mountpoint_;
   std::string gga_buffer_;
-  std::string uart_port;
-  int uart_baud;
+  std::string uart_port_;
+  int uart_baud_;
 #if defined(WIN32) || defined(_WIN32)
   SOCKET socket_fd_ = INVALID_SOCKET;
 #else
