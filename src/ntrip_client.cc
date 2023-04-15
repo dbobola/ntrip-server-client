@@ -27,7 +27,7 @@
 #include "cmake_definition.h.in"
 #include <iostream>
 #include <string>
-#include <serial/serial.h>
+#include <linux/serial.h>
 
 using namespace std;
 using namespace serial;
