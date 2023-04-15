@@ -165,9 +165,11 @@ bool NtripClient::Run(void) {
         }
         // UART configuration - Send RTCM Message to UART2 of Ublox-F9P module
         bool uart_isopened = false;
-        SerialPort serial_port(uart_port_);
+        SerialPort serial_port;
         try {
-            serial_port.SetBaudRate(uart_baud_);
+            serial_port(uart_port_);
+            const LibSerial::BaudRate& baudRate = uart_baud_
+            serial_port.SetBaudRate(baudRate);
 
             // Read one character from the serial port within the timeout allowed.
             int timeout_ms = 25; // timeout value in milliseconds
@@ -176,7 +178,7 @@ bool NtripClient::Run(void) {
             serial_port.ReadByte( next_char, timeout_ms );
             uart_isopened = true;
         }
-        catch (e) {
+        else {
             // Log error message
             std::cerr << "Open " << uart_port_ << " failed! Please make sure you entered right port and baudrate!" << std::endl;
         }
@@ -188,7 +190,7 @@ bool NtripClient::Run(void) {
                 std::cerr << "Data sent to Arduino" << std::endl;
 
             }
-            catch (e) {
+            else {
                 std::cerr << "Did not send!" << std::endl;
             }
         }
@@ -330,9 +332,11 @@ void NtripClient::ThreadHandler(void) {
 
         // UART configuration - Send RTCM Message to UART2 of Ublox-F9P module
         bool uart_isopened = false;
-        SerialPort serial_port(uart_port_);
+        SerialPort serial_port;
         try {
-            serial_port.SetBaudRate(uart_baud_);
+            serial_port(uart_port_);
+            const LibSerial::BaudRate& baudRate = uart_baud_
+            serial_port.SetBaudRate(baudRate);
 
             // Read one character from the serial port within the timeout allowed.
             int timeout_ms = 25; // timeout value in milliseconds
@@ -341,7 +345,7 @@ void NtripClient::ThreadHandler(void) {
             serial_port.ReadByte( next_char, timeout_ms );
             uart_isopened = true;
         }
-        catch (e) {
+        else {
             // Log error message
             std::cerr << "Open " << uart_port_ << " failed! Please make sure you entered right port and baudrate!" << std::endl;
         }
@@ -353,7 +357,7 @@ void NtripClient::ThreadHandler(void) {
                 std::cerr << "Data sent to Arduino" << std::endl;
 
             }
-            catch (e) {
+            else {
                 std::cerr << "Did not send!" << std::endl;
             }
         }
