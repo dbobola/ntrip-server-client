@@ -165,8 +165,8 @@ bool NtripClient::Run(void) {
         }
         // UART configuration - Send RTCM Message to UART2 of Ublox-F9P module
         bool uart_isopened = false;
+        SerialPort serial_port(uart_port_);
         try {
-            SerialPort serial_port(uart_port_)
             serial_port.SetBaudRate(uart_baud_);
 
             // Read one character from the serial port within the timeout allowed.
@@ -176,7 +176,7 @@ bool NtripClient::Run(void) {
             serial_port.ReadByte( next_char, timeout_ms );
             uart_isopened = true;
         }
-        catch (serial::IOException& e) {
+        catch (e) {
             // Log error message
             std::cerr << "Open " << uart_port_ << " failed! Please make sure you entered right port and baudrate!" << std::endl;
         }
@@ -188,7 +188,7 @@ bool NtripClient::Run(void) {
                 std::cerr << "Data sent to Arduino" << std::endl;
 
             }
-            catch (serial::IOException& e) {
+            catch (e) {
                 std::cerr << "Did not send!" << std::endl;
             }
         }
@@ -330,11 +330,18 @@ void NtripClient::ThreadHandler(void) {
 
         // UART configuration - Send RTCM Message to UART2 of Ublox-F9P module
         bool uart_isopened = false;
+        SerialPort serial_port(uart_port_);
         try {
-            serial::Serial uart2_f9p(uart_port_, uart_baud_, serial::Timeout::simpleTimeout(0));
+            serial_port.SetBaudRate(uart_baud_);
+
+            // Read one character from the serial port within the timeout allowed.
+            int timeout_ms = 25; // timeout value in milliseconds
+            char next_char;      // variable to store the read result
+
+            serial_port.ReadByte( next_char, timeout_ms );
             uart_isopened = true;
         }
-        catch (serial::IOException& e) {
+        catch (e) {
             // Log error message
             std::cerr << "Open " << uart_port_ << " failed! Please make sure you entered right port and baudrate!" << std::endl;
         }
@@ -342,11 +349,11 @@ void NtripClient::ThreadHandler(void) {
         if (uart_isopened) {
             // Send to UART2 of Ublox-F9P
             try {
-                uart2_f9p.write(solution_data);
+                serial_port.Write(solution_data.c_str());
                 std::cerr << "Data sent to Arduino" << std::endl;
 
             }
-            catch (serial::IOException& e) {
+            catch (e) {
                 std::cerr << "Did not send!" << std::endl;
             }
         }
@@ -354,6 +361,7 @@ void NtripClient::ThreadHandler(void) {
             // Log warning message
             std::cerr << "Uart not opened! RTCM data won't be sent!" << std::endl;
         }
+
 
       // send(socket_fd_, gga_buffer_.c_str(), gga_buffer_.size(), 0);
       send(socket_fd_, solution_data.c_str(), solution_data.size(), 0);
