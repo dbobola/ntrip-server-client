@@ -26,7 +26,7 @@ using libntrip::NtripServer;
 } // namespace
 
 int main(void) {
-  std::string ip = "127.0.0.1";
+  std::string ip = "16.16.107.177";
   int port = 8090;
   std::string user = "test01";
   std::string passwd  = "123456";
